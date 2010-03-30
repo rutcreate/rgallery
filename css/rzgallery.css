@@ -1,0 +1,270 @@
+a.upload-button {
+  background: #efefef;
+  border: 1px solid #ccc;
+}
+
+ul#box-new-entry {
+  border: 1px solid #ccc;
+  width: 780px;
+  overflow: hidden;
+  list-style: none;
+}
+
+ul#box-new-entry li {
+  list-style: none;
+  float: left;
+  width: 240px;
+  padding: 5px;
+  background: none;
+}
+
+ul#box-new-entry li input.rzgallery-image-title,
+ul#box-new-entry li textarea.rzgallery-image-description {
+  border: 1px solid #ccc;
+  width: 100%;
+}
+
+/**
+ * Start list images page 'rzgallery/images'
+ */
+ul.rzgallery-images {
+  width: 780px;
+  overflow: hidden;
+  list-style: none;
+}
+
+ul.rzgallery-images li {
+  float: left;
+  width: 240px;
+  padding: 5px;
+  background: none;
+}
+
+div.rzgallery-editable-title {
+  color: #000;
+  font-size: 9pt;
+  font-weight: bold;
+  background: none;
+}
+
+div.rzgallery-editable-desc {
+  color: #000;
+  font-size: 8pt;
+  background: none;
+}
+
+div.rzgallery-editable-title:hover {
+  background: #FFFFD3;
+}
+
+div.rzgallery-editable-desc:hover {
+  background: #FFFFD3;
+}
+
+.rzgallery-images-image textarea,
+.rzgallery-images-image input[type=text],
+.rzgallery-images-image-view textarea,
+.rzgallery-images-image-view input[type=text] {
+  border: 1px inset #00D; 
+  padding: 3px; 
+  font-size: 9pt; 
+  font-weight: bold; 
+  font-family: arial;
+  background-color: rgb(255, 255, 211); 
+  margin-bottom: 5px;
+}
+
+li.rzgallery-images-image {
+  width: 260px;
+  padding-bottom: 20px;
+}
+
+li.rzgallery-images-image-view {
+  width: 420px;
+  padding-bottom: 20px;
+}
+
+li.rzgallery-images-image > * {
+  width: 240px;
+}
+
+li.rzgallery-images-image-view > * {
+  width: 400px;
+}
+
+ul#rzgallery-images-wrapper {
+  float: left;
+}
+
+ul#rzgallery-images-wrapper li {
+  background: none;
+  /*width: 250px;*/
+  float: left;
+	padding: 0px 15px 20px 0px;
+}
+
+ul#rzgallery-images-wrapper li > *{
+  /*width: 240px;*/
+}
+
+ul#rzgallery-images-wrapper li.clear {
+  clear: both;
+  width: 100%;
+}
+
+ul.rzgallery-pager {
+  float: left;
+}
+
+ul.rzgallery-pager li.active {
+  background: #fff;
+  border: 1px solid #fff;
+}
+
+ul.rzgallery-pager li {
+  
+  background: #efefef;
+  border: 1px solid #ccc;
+  float: left;
+  padding: 1px 8px;
+  text-align: center;
+}
+
+/* End list images */
+
+.clearit {
+  clear: both;
+}
+
+/**
+ * Configure node
+ */
+div#rz-manage-box {
+  float: left;
+  width: 65%;
+}
+
+/* button */
+div.rz-button {
+  background: #efefef;
+  border: 1px solid #ccc;
+  border-color: #ccc #333 #333 #ccc;
+  -moz-border-radius: 3px;
+  float: left;
+  font-weight: bold;
+  padding: 5px 10px 5px 25px;
+  margin-right: 5px;
+  margin-top: 5px;
+  cursor: pointer;
+}
+
+div.rz-button:active {
+  background: #fff;
+  border-color: #333 #ccc #ccc #333;
+  padding: 6px 8px 4px 27px;
+}
+
+/* remove button */
+div#rz-remove-button {
+  background-image: URL(../images/remove.gif);
+  background-position: 4px 4px;
+  background-repeat: no-repeat;
+}
+
+div#rz-remove-button:active {
+  background-position: 6px 5px;
+}
+
+/* thumbnail button */
+div#rz-thumbnail-button {
+  background-image: URL(../images/thumbnail.gif);
+  background-position: 4px 4px;
+  background-repeat: no-repeat;
+}
+
+div#rz-thumbnail-button:active {
+  background-position: 6px 5px;
+}
+
+/* search button not in used */
+div#rz-search-button {
+  background-image: URL(../images/search.gif);
+  background-position: 4px 4px;
+  background-repeat: no-repeat;
+}
+
+div#rz-search-button:active {
+  background-position: 6px 5px;
+}
+
+/* image list box */
+div#rz-images-list-box {
+  float: right;
+  width: 30%;
+}
+
+div#rz-images-list-box div#rz-search-box {
+  text-align: center;
+}
+
+div#rz-images-list-box div#rz-search-box input#search-text {
+  width: 65%;
+}
+
+div#rz-images-list-box div#rz-search-box input#search-button {
+  width: 30%;
+}
+
+div#rz-images-list-box div#rz-search-box input#add-button {
+  width: 99%;
+}
+
+div#rz-images-list-box div#rz-images-list {
+  border: 1px solid #ccc;
+  -moz-border-radius: 5px;
+  margin-top: 5px;
+  padding: 5px;
+  width: 95%;
+  max-height: 500px;
+  overflow: auto;
+}
+
+div#rz-images-list div img {
+  border: 1px solid #fff;
+  padding: 5px;
+}
+
+div#rz-images-list div.selected img {
+  border: 1px solid #f7c458;
+}
+
+div#rz-images-list div.disabled {
+  display: none;
+}
+
+div#rz-images-in-set {
+  border: 1px solid #ccc;
+  -moz-border-radius: 5px;
+  margin-top: 5px;
+  padding: 5px;
+  width: 95%;
+  float: left;
+}
+
+div#rz-images-in-set div {
+  padding: 5px;
+  float: left;
+}
+
+div#rz-images-in-set div img {
+  border: 1px solid #fff;
+  padding: 5px;
+}
+
+div#rz-images-in-set div.selected img {
+  border: 1px solid #f7c458;
+}
+
+div#rz-images-in-set div.thumbnail {
+  background: #efefef;
+}

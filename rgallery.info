@@ -1,0 +1,12 @@
+; $Id$
+name = RGallery
+description = Photo gallery modules
+core = 7.x
+package = Image Gallery
+version = 7.x-0.1
+
+files[] = rgallery.module
+files[] = rgallery.album.inc
+files[] = rgallery.admin.inc
+files[] = rgallery.user.inc
+files[] = rgallery.install

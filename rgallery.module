@@ -1,0 +1,703 @@
+<?php
+
+define("RGALLERY_UPLOAD_PATH", "rgallery", TRUE);
+
+/**
+ * Implemens hook_menu().
+ */
+function rgallery_menu() {
+  // List album
+  $items['mygallery'] = array(
+    'title' => 'My gallery',
+    'page callback' => 'rgallery_my_gallery',
+    'access callback' => 'rgallery_my_gallery_access',
+    'file' => 'rgallery.album.inc',
+  );
+  $items['gallery/%user'] = array(
+  	'title' => t('Gallery'),
+    'page callback' => 'rgallery_view_gallery',
+    'page arguments' => array(1),
+    'access callback' => 'rgallery_gallery_access',
+    'access arguments' => array(1),
+    'file' => 'rgallery.album.inc',
+    'type' => MENU_CALLBACK,
+  );
+  $items['user/%user/rgallery'] = array(
+    'title' => t('RGallery settings'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('rgallery_user_settings_form'),
+    'access callback' => 'user_edit_access',
+    'access arguments' => array(1),
+    'file' => 'rgallery.user.inc',
+    'type' => MENU_LOCAL_TASK,
+  );
+  /**
+   * Settings
+   */
+  $items['admin/config/rgallery/file'] = array(
+    'title' => t('File information'),
+    'description' => t('Configure the file information, SWFUpload.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('rgallery_file_settings_form'),
+    'access arguments' => array('administer rgallery'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'rgallery.admin.inc',
+    'weight' => 0,
+  );
+  $items['admin/config/rgallery'] = array(
+    'title' => t('RGallery'),
+    'description' => t('Configure the file information, SWFUpload.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('rgallery_file_settings_form'),
+    'access arguments' => array('administer rgallery'),
+    'type' => MENU_NORMAL_ITEM,
+    'file' => 'rgallery.admin.inc',
+  );
+  $items['admin/config/rgallery/styles'] = array(
+    'title' => t('Styles'),
+    'description' => t('Configure the styles for display images.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('rgallery_style_settings_form'),
+    'access arguments' => array('administer rgallery'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'rgallery.admin.inc',
+    'weight' => 1,
+  );
+  $items['admin/config/rgallery/display'] = array(
+    'title' => t('Display'),
+    'description' => t('Configure the number of images.'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('rgallery_display_settings_form'),
+    'access arguments' => array('administer rgallery'),
+    'type' => MENU_LOCAL_TASK,
+    'file' => 'rgallery.admin.inc',
+    'weight' => 2,
+  );
+  // Node album configure menu
+  $items['node/%rgallery_manage/photos'] = array(
+    'title' => t('Photos'),
+    'page callback' => 'rgallery_album_edit_photos',
+    'page arguments' => array(1),
+    'access callback' => 'rgallery_manage_access',
+    'access arguments' => array('edit_page', 1),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 10,
+    'file' => 'rgallery.album.inc',
+  );
+  $items['node/%rgallery_manage/add_photos'] = array(
+    'title' => t('Add photos'),
+    'page callback' => 'rgallery_album_add_photos',
+    'page arguments' => array(1),
+    'access callback' => 'rgallery_manage_access',
+    'access arguments' => array('add', 1),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => 11,
+    'file' => 'rgallery.album.inc',
+  );
+  // Callback menu
+  $items['rgallery/photos/upload'] = array(
+    'page callback' => 'rgallery_album_photos_upload',
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'rgallery.album.inc',
+  );
+  $items['rgallery/photo/delete/%rgallery_manage_photo'] = array(
+    'page callback' => 'rgallery_album_photo_delete',
+    'page arguments' => array(3),
+    'access callback' => 'rgallery_manage_access',
+    'access arguments' => array('delete', 3),
+    'type' => MENU_CALLBACK,
+    'file' => 'rgallery.album.inc',
+  );
+  $items['rgallery/photo/save/%rgallery_manage_photo'] = array(
+    'page callback' => 'rgallery_album_photo_save',
+    'page arguments' => array(3),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'rgallery.album.inc',
+  );
+  $items['rgallery/album/save/%rgallery_manage'] = array(
+    'page callback' => 'rgallery_album_photo_save',
+    'page arguments' => array(3),
+    'access callback' => TRUE,
+    'type' => MENU_CALLBACK,
+    'file' => 'rgallery.album.inc',
+  );
+  return $items;
+}
+
+/**
+ * Implement hook_permission().
+ */
+function rgallery_permission() {
+  return array(
+    'view any gallery' => array(
+      'title' => t('View any gallery'),
+    ),
+    'manage rgallery' => array(
+      'title' => t('Manage all gallery'),
+    ),
+    'administer rgallery' => array(
+      'title' => t('Configure the RGallery settings'),
+    ),
+  );
+}
+
+function rgallery_my_gallery_access() {
+  global $user;
+  if (user_is_anonymous()) return FALSE;
+  if ($user->uid == 1) return TRUE;
+  return user_access('access content', $user);
+}
+
+function rgallery_gallery_access($account = NULL) {
+  global $user;
+  if (!isset($account)) $account = $user;
+  if ($user->uid == 1) return TRUE;
+  
+  return (($user->uid == $account->uid || variable_get('rgallery_user_'.$account->uid.'_allow_gallery', TRUE)) && user_access('access content', $user)) || user_access('view any gallery', $user);
+}
+
+/**
+ * Manage access
+ */
+function rgallery_manage_access($op, $node = NULL, $account = NULL) {
+  global $user;
+  if (!isset($account)) $account = $user;
+  if ($account->uid == 1) return TRUE;
+  
+  if (!in_array($node->type, array('ralbum', 'rphoto'))) return FALSE;
+  
+  switch ($op) {
+    // Add photo via SWFUpload
+    case 'add':
+      return (user_access('create rphoto content', $account) && $account->uid == $node->uid && $node->type == 'ralbum');
+    
+    // Update photo on Edit photos page
+    case 'edit_photo':
+      if ($node->type == 'ralbum') {
+        if (count(rgallery_get_photos_by_album($node)) == 0) {
+          return FALSE;
+        }
+      }
+      return ($account->uid == $node->uid && user_access('edit own rphoto content', $account)) || user_access('edit any rphoto content', $account) || user_access('manage rgallery', $account);
+      
+    // Display Edit photos tab on album page
+    case 'edit_page':
+      $photos = rgallery_get_photos_by_album($node);
+      if (count($photos) > 0) {
+        return ($account->uid == $node->uid && $node->type == 'ralbum') || user_access('edit any rphoto content', $account) || user_access('manage rgallery', $account);
+      }
+      return FALSE;
+      
+    // Delete photo
+    case 'delete':
+      return ($account->uid == $node->uid && user_access('delete own rphoto content', $account)) || user_access('delete any rphoto content', $account) || user_access('manage rgallery', $account);
+  }
+  return FALSE;
+}
+
+/**
+ * Album access
+ */
+function rgallery_album_access($op, $node = NULL, $account = NULL) {
+  global $user;
+  $user = $account ? $account : $user;
+  switch ($op) {
+    case 'manage':
+    case 'add_photos':
+      $own = user_access('manage own rgallery content', $user) && ($user->uid == $node->uid) && ($node->type == 'ralbum');
+      $any = user_access('manage any rgallery content', $user);
+      return $own || $any;
+    case 'edit_photos':
+      $photos = rgallery_get_photos_by_album($node);
+      if (count($photos) > 0) {
+        $own = user_access('manage own rgallery content', $user) && $user->uid == $node->uid && $node->type == 'ralbum';
+        $any = user_access('manage any rgallery content', $user);
+        return $own || $any;
+      }
+      return FALSE;
+    case 'bypass':
+      return TRUE;
+  }
+}
+
+/**
+ * Implement hook_node_info().
+ */
+function rgallery_node_info() {
+  return array(
+    'ralbum' => array(
+      'name' => t('RGallery Album'),
+      'base' => 'rgallery_album',
+      'description' => t("Create your album."),
+      'has_title' => TRUE,
+      'title_label' => t('Album title'),
+      'has_body' => FALSE,
+      'locked' => TRUE,
+    ),
+    'rphoto' => array(
+      'name' => t('RGallery Photo'),
+      'base' => 'rgallery_photo',
+      'description' => t("Create your photo."),
+      'has_title' => TRUE,
+      'title_label' => t('Photo title'),
+      'has_body' => TRUE,
+      'body_label' => t('Photo description'),
+    ),
+  );
+}
+
+/**
+ * Implement hook_form().
+ */
+function rgallery_album_form($node, &$form_state) {
+  $type = node_type_get_type($node);
+  $form['title'] = array(
+    '#type' => 'textfield',
+    '#title' => check_plain($type->title_label),
+    '#required' => TRUE,
+    '#default_value' => $node->title,
+    '#weight' => -5,
+  );
+  if (!isset($node->privacy)) $node->privacy = 0;
+  $form['privacy'] = array(
+	  '#type' => 'select',
+	  '#title' => t('Privacy'),
+	  '#options' => array(
+	    '1' => t('Everyone can see this album'),
+	    '0' => t('Only me can see this album'),
+	  ),
+	  '#default_value' => $node->privacy,
+	  '#weight' => -4,
+	);
+  return $form;
+}
+
+/**
+ * Implement hook_form().
+ */
+function rgallery_photo_form($node, &$form_state) {
+  return node_content_form($node, $form_state);
+}
+
+/**
+ * Callback manage page load().
+ */
+function rgallery_manage_load($nid = NULL) {
+  if (is_numeric($nid)) {
+    $node = node_load($nid);
+    if ($node->type == 'ralbum') {
+      return $node;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Callback manage page load().
+ */
+function rgallery_manage_photo_load($nid = NULL) {
+  if (is_numeric($nid)) {
+    $node = node_load($nid);
+    if ($node->type == 'rphoto') {
+      return $node;
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Implement hook_load().
+ */
+function rgallery_album_load($nodes) {
+  $_nodes = $nodes;
+  foreach ($_nodes as $node) {
+    $nodes[$node->nid]->privacy = $node->promote;
+  }
+}
+
+/**
+ * Implement hook_load().
+ */
+function rgallery_photo_load($nodes) {
+  $result = db_query('SELECT a.pid, a.aid, f.fid, f.uri, a.is_thumbnail FROM {ralbum} a, {file} f WHERE a.fid = f.fid AND pid IN (:pids)', array(':pids' => array_keys($nodes)));
+  foreach ($result as $record) {
+    $nodes[$record->pid]->album_id = $record->aid;
+    $nodes[$record->pid]->is_thumbnail = $record->is_thumbnail;
+    $nodes[$record->pid]->photo_uri = $record->uri;
+    $file = file_load($record->fid);
+    $nodes[$record->pid]->photo = $file;
+  }
+}
+
+/**
+ * Implement of hook_insert().
+ */
+function rgallery_album_insert($node) {
+  db_update('node')
+    ->fields(array(
+      'promote' => $node->privacy,
+    ))
+    ->condition('nid', $node->nid)
+    ->execute();
+  db_update('node_revision')
+    ->fields(array(
+      'promote' => $node->privacy,
+    ))
+    ->condition('vid', $node->vid)
+    ->execute();
+  file_prepare_directory(rgallery_album_uri($node->nid), FILE_CREATE_DIRECTORY);
+}
+
+/**
+ * Implement of hook_update().
+ */
+function rgallery_album_update($node) {
+  db_update('node')
+    ->fields(array(
+      'promote' => $node->privacy,
+    ))
+    ->condition('nid', $node->nid)
+    ->execute();
+  db_update('node_revision')
+    ->fields(array(
+      'promote' => $node->privacy,
+    ))
+    ->condition('vid', $node->vid)
+    ->execute();
+}
+
+/**
+ * Implement of hook_delete().
+ */
+function rgallery_album_delete($node) {
+  $result = db_query("SELECT a.pid as nid, f.fid, f.uri FROM {ralbum} a, {file} f WHERE a.fid = f.fid AND a.aid = :aid", array(':aid' => $node->nid));
+  $file = new stdClass();
+  foreach ($result as $photo) {
+    node_delete($photo->nid);
+    $file = file_load($photo->fid);
+    file_delete($file);
+  }
+  db_delete('ralbum')
+    ->condition('aid', $node->nid)
+    ->execute();
+  // Delete folder
+  file_unmanaged_delete_recursive(rgallery_album_uri($node->nid));
+}
+
+/**
+ * Implement of hook_delete().
+ */
+function rgallery_photo_delete($node) {
+  db_delete('ralbum')
+    ->condition('pid', $node->nid)
+    ->execute();
+  file_delete($node->photo);
+}
+
+/**
+ * Implement of hook_view().
+ */
+function rgallery_album_view($node, $view_mode = 'full') {
+  global $user;
+  $photos = rgallery_get_photos_by_album($node);
+  drupal_add_js(rgallery_path() . '/js/view.js');
+  drupal_add_css(rgallery_path() .'/css/rgallery.css');
+  
+  if (!rgallery_gallery_access() && $node->privacy == 0) drupal_access_denied();
+  
+  $menus = array();
+  if ($view_mode == 'full') {
+    if (count($photos) > 1) {
+      $menus[] = t('!count photos', array('!count' => count($photos)));
+    }
+    else {
+      $menus[] = t('!count photo', array('!count' => count($photos)));
+    }
+    $menus[] = l(t('Back to gallery'), 'gallery/'. $node->uid);
+    if (rgallery_manage_access('delete', $node)) {
+      $menus[] = l(t('Delete album'), 'node/'. $node->nid .'/delete');
+    }
+  }
+  $menus = implode(' | ', $menus);
+  
+  $output = NULl;
+  if (count($photos)) {
+    foreach ($photos as $photo) {
+      $output .= '<li id="rgallery-photo-'. $photo['nid'] .'">'. l($photo['image'], 'node/'. $photo['nid'], array('html' => TRUE)) .'</li>';
+    }
+  }
+  else {
+    $output .= t('<h6>There are no photos in this album.</h6>');
+  }
+  
+  $output = $menus.'<ul id="rgallery-view-photos-list">'. $output .'</ul>';
+  $attributes = array('id' => 'rgallery-view-photos-wrapper');
+  $node->content['body'][0]['#markup'] = theme('rgallery_wrapper', array('data' => $output, 'attributes' => $attributes));
+  return $node;
+}
+
+/**
+ * Implement hook_view().
+ */
+function rgallery_photo_view($node, $view_mode = 'full') {
+  $album_node = node_load($node->album_id);
+  drupal_add_css(rgallery_path() .'/css/rgallery.css');
+  
+  if (!rgallery_gallery_access() && $album_node->privacy == 0) drupal_access_denied();
+  
+  if ($view_mode == 'full') {
+    drupal_set_title(t('Photo of !title', array('!title' => $album_node->title)));
+    $node->content['navigation'][0]['#markup'] = '<div class="rgallery-view-photo-nav">'. rgallery_render_nav($node->album_id, $node->nid) .'</div>';
+  }
+  
+  // image
+  $preset = variable_get('rgallery_imagestyle_preview', NULL);
+  $image = theme('image_style', array('style_name' => $preset, 'path' => $node->photo_uri));
+  $node->content['body'][0]['#markup'] = '<div class="rgallery-body">'. l($image, file_create_url($node->photo_uri), array('html' => TRUE)) .'</div>';
+  $node->content['body'][0]['#weight'] = 0;
+  
+  // description
+  $description = $node->body[LANGUAGE_NONE][0]['value'] ? $node->body[LANGUAGE_NONE][0]['value'] : 'no description';
+  $node->content['description'][0]['#markup'] = '<div class="rgallery-description">'. $description .'</div>';
+  $node->content['description'][0]['#weight'] = 1;
+  return $node;
+}
+
+/**
+ * Implement hook_form_alter().
+ */
+function rgallery_form_rphoto_node_form_alter(&$form, &$form_state) {
+  drupal_set_message('You have to add or edit photo on album node, change this form will break your gallery.');
+  drupal_access_denied();
+}
+
+/**
+ * Implement hook_theme().
+ */
+function rgallery_theme($existing, $type, $theme, $path) {
+  return array(
+    'rgallery_wrapper' => array(
+      'variables' => array('data' => NULL, 'attributes' => NULL),
+      'template' => 'rgallery-wrapper',
+    ),
+    'rgallery_photos_list' => array(
+      'variables' => array('photos' => NULL),
+      'template' => 'rgallery-photos-list',
+    ),
+    'rgallery_photo_item' => array(
+      'variables' => array('nid' => NULL, 'image' => NULL, 'description' => NULL, 'cover' => NULL, 'delete' => NULL),
+      'template' => 'rgallery-photo-item',
+    ),
+    'rgallery_album_item' => array(
+      'variables' => array('thumbnail' => NULL, 'title' => NULL, 'count' => NULL, 'link' => NULL),
+      'template' => 'rgallery-album-item',
+    ),
+  );
+}
+
+/**
+ * Process variables for rgallery-wrapper.tpl.php.
+ *
+ * The $variables array contains the following arguments:
+ * - $data: display output
+ * - $attributes: html attributes
+ *
+ * @see rgallery-wrapper.tpl.php
+ */
+function template_preprocess_rgallery_wrapper(&$variables) {
+  $attributes = $variables['attributes'];
+  $class = empty($attributes['class']) ? ' class="rgallery-wrapper"' : ' class="'. $attributes['class'] .'"';
+  $id = empty($attributes['id']) ? '' : ' id="'. $attributes['id'] .'"';
+  $style = empty($attributes['style']) ? '' : ' style="'. $attributes['style'] .'"';
+  $variables['attributes'] = $class.$id.$style;
+}
+
+/**
+ * Process variables for rgallery-photo-item.tpl.php.
+ *
+ * The $variables array contains the following arguments:
+ * - $nid: display output
+ * - $image: html attributes
+ * - $description:
+ * - $is_thumbnail: 
+ *
+ * @see rgallery-photo-item.tpl.php
+ */
+function template_preprocess_rgallery_photo_item(&$variables) {
+  
+}
+
+/**
+ * Process variables for rgallery-album-item.tpl.php.
+ *
+ * The $variables array contains the following arguments:
+ * - $thumbnail: thumbnail image
+ * - $title: album title
+ * - $count: number of photos in album
+ * - $link: album link
+ *
+ * @see rgallery-album-item.tpl.php
+ */
+function template_preprocess_rgallery_album_item(&$variables) {
+  $variables['thumbnail'] = l($variables['thumbnail'], $variables['link'], array('html' => TRUE));
+  $variables['title'] = l($variables['title'], $variables['link']);
+  if ($variables['count'] > 1) {
+    $variables['count'] = t('!count photos', array('!count' => $variables['count']));
+  }
+  else {
+    $variables['count'] = t('!count photo', array('!count' => $variables['count']));
+  }
+  unset($variables['link']);
+}
+
+/**
+ * Process variables for rgallery-photos-list.tpl.php.
+ *
+ * The $variables array contains the following arguments:
+ * - $photos: list of photos
+ *
+ * @see rgallery-photos-list.tpl.php
+ */
+function template_preprocess_rgallery_photos_list(&$variables) {
+  $photos = $variables['photos'];
+  $output = '';
+  if (count($photos)) {
+    foreach ($photos as $nid => $photo) {
+      $photo_node = node_load($nid);
+      $image = $photo['image'];
+      
+      // Description
+      if ($photo['description']) {
+        $description = str_replace(chr(10), '', nl2br($photo['description']));
+      }
+      else {
+        if (rgallery_manage_access('edit_photo', $photo_node)) {
+          $description = t('Add a description');
+        }
+        else {
+          $description = t('No description');
+        }
+      }
+      
+      // Delete button
+      $delete = '';
+      if (rgallery_manage_access('delete', $photo_node)) {
+        $delete = '<div class="rgallery-delete" id="delete-'.$nid.'">'. t('Remove') .'</div>';
+      }
+      
+      // Form select thumbnail cover
+      $cover = '';
+      if (rgallery_manage_access('edit_photo', $photo_node)) {
+        $cover = '<div class="rgallery-edit-photo-thumbnail">';
+        $is_thumbnail = $photo['is_thumbnail'] ? ' checked="checked"' : '';
+        $cover .= '  <input type="radio" id="thumbnail-'. $nid .'" name="thumbnail"'. $is_thumbnail .' />';
+        $cover .= '  <label for="thumbnail-'. $nid .'">'. t('Use this photo as cover.') .'</label>';
+        $cover .= '</div>';
+      }
+      
+      $output .= theme('rgallery_photo_item', array('nid' => $nid, 'image' => $image, 'description' => $description, 'cover' => $cover, 'delete' => $delete));
+    }
+  }
+  $variables['photos'] = $output;
+}
+
+/**
+ * Return all photos in album
+ */
+function rgallery_get_photos_by_album($node = NULL) {
+  if (is_numeric($node)) $node = node_load($node);
+  if ($node->type == 'ralbum') {
+    
+    if ($node->privacy == 0) {
+      if (!($node->uid == $GLOBALS['user']->uid || user_access('view any gallery'))) return FALSE;
+    }
+    
+    $_photos = db_query("SELECT a.aid, a.pid AS nid, f.uri, a.weight, a.is_thumbnail FROM {ralbum} a, {file} f WHERE a.fid = f.fid AND a.aid = :aid ORDER BY a.weight ASC", array(':aid' => $node->nid));
+    $photos = array();
+    foreach ($_photos as $i => $photo) {
+      $preset = variable_get('rgallery_imagestyle_thumbnail', FALSE);
+      $image = ($preset) ? theme('image_style', array('style_name' => $preset, 'path' => $photo->uri)) : theme('image', $photo->uri);
+      $node = node_load($photo->nid);
+      $photos[$photo->nid] = array(
+        'nid' => $node->nid,
+        'title' => $node->title,
+        'description' => $node->body[LANGUAGE_NONE][0]['value'],
+        'weight' => $photo->weight,
+        'image' => $image,
+        'is_thumbnail' => $photo->is_thumbnail,
+      );
+    }
+    return $photos;
+  }
+  return FALSE;
+}
+
+/**
+ * Return thumbnail album
+ */
+function rgallery_get_thumbnail($node = NULL) {
+  if (is_numeric($node)) {
+    $node = node_load($node);
+  }
+  if ($node->type == 'ralbum') {
+    $uri = db_query("SELECT f.uri FROM {ralbum} a, {file} f WHERE a.fid = f.fid AND a.aid = :aid AND a.is_thumbnail = 1", array(':aid' => $node->nid))->fetchCol();
+    if (!empty($uri)) {
+      if ($preset = variable_get('rgallery_imagestyle_cover', FALSE)) {
+        return theme('image_style', array('style_name' => $preset, 'path' => $uri[0]));
+      }
+    }
+  }
+  return FALSE;
+}
+
+/**
+ * Return navigator for photo album
+ */
+function rgallery_render_nav($aid, $pid) {
+  $node = node_load($aid);
+  $photos = rgallery_get_photos_by_album($node);
+  $pids = array_keys($photos);
+  $current = array_search($pid, $pids);
+  $count = count($photos);
+  
+  $left_items = array();
+  $left_items[] = t('Photo !current of !count', array('!current' => $current + 1, '!count' => $count));
+  $left_items[] = l(t('Back to album'), 'node/'. $aid);
+  
+  $right_items = array();
+  $prev_index = $current - 1 < 0 ? $count - 1 : $current - 1;
+  $next_index = $current + 1 == $count ? 0 : $current + 1;
+  $right_items[] = l(t('Previous'), 'node/'. $pids[$prev_index]);
+  $right_items[] = l(t('Next'), 'node/'. $pids[$next_index]);
+  
+  $left = '<div class="rgallery-view-photo-nav-left">'. implode(' | ', $left_items) .'</div>';
+  $right = '<div class="rgallery-view-photo-nav-right">'. implode(' | ', $right_items) .'</div>';
+  return $left . $right;
+}
+
+/**
+ * Return current language prefix
+ */
+function rgallery_get_lang() {
+  if (module_exists('locale')) {
+    global $language;
+    return $language->language;
+  }
+  return LANGUAGE_NONE;
+}
+
+/**
+ * Return album path
+ */
+function rgallery_album_uri($nid) {
+  return file_build_uri(RGALLERY_UPLOAD_PATH.'/'.$nid);
+}
+
+/**
+ * Return module path
+ */
+function rgallery_path() {
+  return drupal_get_path('module', 'rgallery');
+}

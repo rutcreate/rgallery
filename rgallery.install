@@ -1,0 +1,65 @@
+<?php
+
+/**
+ * Implement of hook_install().
+ */
+function rgallery_install() {
+  file_prepare_directory(file_build_uri(RGALLERY_UPLOAD_PATH), FILE_CREATE_DIRECTORY);
+  file_unmanaged_copy(rgallery_path() .'/default.jpg', file_build_uri(RGALLERY_UPLOAD_PATH), FILE_EXISTS_REPLACE);
+}
+
+/**
+ * Implement of hook_uninstall().
+ */
+function rgallery_uninstall() {
+  
+}
+
+/**
+ * Implementation of hook_schema().
+ */
+function rgallery_schema() {
+  $schema['ralbum'] = array(
+    'fields' => array(
+      'aid' => array(
+        'type' => 'int',
+        'description' => 'album id as nid',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => '0',
+      ),
+      'pid' => array(
+        'type' => 'int',
+        'description' => 'photo nid of gallery as nid',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => '0',
+      ),
+      'fid' => array(
+        'type' => 'int',
+        'description' => 'file id',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => '0',
+      ),
+      'weight' => array(
+        'type' => 'int',
+        'description' => 'weight to order',
+        'unsigned' => TRUE,
+        'not null' => TRUE,
+        'default' => '0',
+      ),
+      'is_thumbnail' => array(
+        'type' => 'int',
+        'description' => 'is thumbnail for set cover',
+        'unsigned' => TRUE,
+        'not null '=> TRUE,
+        'default' => '0',
+      ),
+    ),
+    'primary key' => array('aid', 'pid', 'weight'),
+  );
+  return $schema;
+}
+
+?>

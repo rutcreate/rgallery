@@ -1,0 +1,334 @@
+/**
+ * global
+ */
+.rgallery-buttons-wrapper {
+  text-align: center;
+}
+
+.rgallery-buttons-wrapper input {
+  background-color: #5972A7;
+  border: 1px outset #0C2253;
+  color: #FFFFFF;
+  font-size: 8pt;
+  padding: 2px 15px 3px;
+  margin: 2px 4px;
+}
+
+/**
+ * edit album page
+ */
+#rgallery-edit-photos-wrapper {
+
+}
+
+ul#rgallery-edit-photos-list {
+  width: 98%;
+  padding: 10px;
+}
+
+ul#rgallery-edit-photos-list > li {
+  padding: 10px 0 0 160px;
+  margin: 3px;
+  min-height: 165px;
+  text-align: center;
+  background: #FFF;
+  border: 1px solid #CCC;
+  list-style: none;
+  position: relative;
+  left: 0;
+  top: 0;
+}
+
+ul#rgallery-edit-photos-list li div.rgallery-drag-bar {
+  position: relative;
+  left: 0;
+  top: 0;
+  background: #CCC;
+  border-bottom: 1px solid #999;
+  border-right: 1px solid #999;
+  width: 175px;
+  height: 20px;
+  margin-bottom: 5px;
+  cursor: move;
+}
+
+ul#rgallery-edit-photos-list li .rgallery-delete {
+  position: relative;
+  top: 0;
+  border: 1px solid #FFF;
+  height: 20px;
+  cursor: pointer;
+  float: right;
+  margin-right: 10px;
+  padding: 1px 5px;
+  display: none;
+  font-weight: bold;
+}
+
+ul#rgallery-edit-photos-list li .rgallery-delete:hover {
+  border: 1px solid #CCC;
+  background: #F7F7F7;
+}
+
+ul#rgallery-edit-photos-list li .rgallery-edit-photo-image {
+  height: 150px;
+  line-height: 150px;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+ul#rgallery-edit-photos-list li .rgallery-edit-photo-image img {
+  border: 1px solid #CCC;
+  padding: 4px;
+  cursor: move;
+}
+
+ul#rgallery-edit-photos-list li .rgallery-edit-photo-image img:hover {
+  border-color: #666;
+}
+
+ul#rgallery-edit-photos-list li .rgallery-edit-photo-description-wrapper {
+  padding: 0;
+  margin-right: 87px;
+}
+
+ul#rgallery-edit-photos-list li .rgallery-edit-photo-description-wrapper textarea {
+  background-color:#FFFFD3;
+  border: 1px inset #0000DD;
+  font-weight: bold;
+  font-size: 9pt;
+  width: 100%;
+  padding-bottom: 1px;
+  display: block;
+  min-height: 32px;
+  height: 75px;
+  max-height: 100px;
+  line-height: 18px;
+  overflow: auto !important;
+}
+
+ul#rgallery-edit-photos-list li .rgallery-edit-photo-description-wrapper .rgallery-buttons-wrapper {
+  text-align: right;
+}
+
+ul#rgallery-edit-photos-list li .rgallery-edit-photo-description-wrapper .rgallery-buttons-wrapper input {
+  margin: 2px 0 0 3px;
+}
+
+ul#rgallery-edit-photos-list li .rgallery-edit-photo-description-wrapper .rgallery-buttons-wrapper input#save-button {
+  
+}
+
+ul#rgallery-edit-photos-list li .rgallery-edit-photo-description-wrapper .rgallery-buttons-wrapper input#cancel-button {
+  border: 1px outset #CCC;
+  background: #F0F0F0;
+  color: #000;
+}
+
+ul#rgallery-edit-photos-list li .rgallery-edit-photo-description {
+  text-align: left;
+  color: #000000;
+  overflow: hidden;
+  font-size: 9pt;
+  padding: 2px 0 4px 2px;
+  font-weight: bold;
+  line-height: 18px;
+}
+
+ul#rgallery-edit-photos-list li .rgallery-edit-photo-description:hover {
+  background: #FFFFD5;
+  cursor: pointer;
+}
+
+ul#rgallery-edit-photos-list li .rgallery-edit-photo-tags-wrapper {
+  margin-right: 87px;
+  margin-left: 1px;
+  padding-left: 1px;
+  text-align: left;
+}
+
+ul#rgallery-edit-photos-list li .rgallery-edit-photo-tags-wrapper ul.rgallery-edit-photo-tags {
+  
+}
+
+ul#rgallery-edit-photos-list li .rgallery-edit-photo-tags-wrapper ul.rgallery-edit-photo-tags li{
+  float: none;
+}
+
+ul#rgallery-edit-photos-list li .rgallery-edit-photo-tags-wrapper .rgallery-edit-photo-tags input.rgallery-input-tag {
+  background: #FFF;
+  border: 0px;
+  color: #666;
+  cursor: pointer;
+}
+
+ul#rgallery-edit-photos-list li .rgallery-edit-photo-thumbnail {
+  position: absolute;
+  left: 4px;
+  top: 150px;
+}
+
+ul#rgallery-edit-photos-list li .rgallery-edit-photo-thumbnail input,
+ul#rgallery-edit-photos-list li .rgallery-edit-photo-thumbnail label {
+  vertical-align: middle;
+  font-size: 0.9em;
+}
+
+ul#rgallery-edit-photos-list li input.editable {
+  background-color: #FFFFD3;
+  border: 1px inset #0000DD;
+  font-family: arial;
+  font-size: 9pt;
+  font-weight: bold;
+  padding: 3px;
+}
+
+#rgallery-edit-photos-list li.rgallery-placeholder {
+  background: #EFEFEF;
+  border: 1px solid #CCC;
+}
+
+/**
+ * Organize
+ */
+#rgallery-organize-photos-list {
+  width: 98%;
+  float: left;
+}
+
+#rgallery-organize-photos-list li {
+  float: left;
+  width: 150px;
+  height: 150px;
+  line-height: 150px;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  background: none;
+}
+
+#rgallery-organize-photos-list li img {
+  border: 1px solid #CCC;
+  padding: 4px;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+#rgallery-organize-photos-list li img:hover {
+  border-color: #666;
+}
+
+.rgallery-organize-buttons {
+  text-align: center;
+}
+
+.rgallery-organize-buttons input {
+  margin: 0 3px;
+}
+
+#rgallery-organize-photos-list li.rgallery-placeholder {
+  background: #EFEFEF;
+  border: 1px solid #CCC;
+}
+
+/**
+ * View album
+ */
+#rgallery-view-photos-list {
+  width: 98%;
+  float: left;
+  border: 1px solid #999;
+  padding: 10px;
+  background: #F7F7F7;
+}
+
+#rgallery-view-photos-list > h6 {
+  font-size: 0.9em;
+  text-align: center;
+}
+
+#rgallery-view-photos-list li {
+  float: left;
+  width: 150px;
+  height: 150px;
+  line-height: 150px;
+  text-align: center;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  background: none;
+}
+
+#rgallery-view-photos-list li img {
+  border: 1px solid #CCC;
+  padding: 4px;
+  cursor: pointer;
+  vertical-align: middle;
+}
+
+#rgallery-view-photos-list li img:hover {
+  border-color: #666;
+}
+
+/**
+ * View gallery
+ */
+#rgallery-view-albums-list {
+  width: 98%;
+  float: left;
+  border: 1px solid #999;
+  padding: 10px;
+  background: #F7F7F7;
+}
+
+#rgallery-view-albums-list > h6 {
+  font-size: 0.9em;
+  text-align: center;
+}
+
+#rgallery-view-albums-list > li {
+  float: left;
+  width: 150px;
+  height: 180px;
+  text-align: left;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+  background: none;
+}
+
+#rgallery-view-albums-list li .album-description {
+}
+
+#rgallery-view-albums-list li .album-count {
+  line-height: 20px;
+}
+
+#rgallery-view-albums-list > li img {
+  border: 1px solid #000;
+  cursor: pointer;
+}
+
+#rgallery-view-albums-list > li img:hover {
+  
+}
+
+/**
+ * View photo
+ */
+.rgallery-view-photo-nav {
+  float: left;
+}
+
+.rgallery-view-photo-nav-left {
+  float: left;
+}
+
+.rgallery-view-photo-nav-right {
+  float: right
+}
+
+.rgallery-body {
+  clear: both;
+}
