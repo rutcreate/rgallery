@@ -393,7 +393,11 @@ function rgallery_photo_delete($node) {
   db_delete('ralbum')
     ->condition('pid', $node->nid)
     ->execute();
-  file_delete($node->photo);
+  $fid = db_query("SELECT a.fid FROM {ralbum} a WHERE a.pid = :pid", array(':pid' => $node->nid))->fetchCol();
+  if (!empty($fid)) {
+    $file = file_load($fid[0]);
+    file_delete($file);
+  }
 }
 
 /**
